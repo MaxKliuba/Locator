@@ -26,6 +26,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -41,6 +42,7 @@ public class LocatorFragment extends Fragment {
     };
     private static final int REQUEST_LOCATION_PERMISSION = 0;
 
+    private LinearProgressIndicator mLinearProgressIndicator;
     private AppCompatImageView mImageView;
     private GoogleApiClient mClient;
 
@@ -52,6 +54,7 @@ public class LocatorFragment extends Fragment {
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setRetainInstance(true);
 
         mClient = new GoogleApiClient.Builder(getActivity())
                 .addApi(LocationServices.API)
@@ -59,6 +62,12 @@ public class LocatorFragment extends Fragment {
                     @Override
                     public void onConnected(@Nullable @org.jetbrains.annotations.Nullable Bundle bundle) {
                         getActivity().invalidateOptionsMenu();
+
+                        if (hasLocationPermission()) {
+                            findImage();
+                        } else {
+                            requestPermissions(LOCATION_PERMISSION, REQUEST_LOCATION_PERMISSION);
+                        }
                     }
 
                     @Override
@@ -77,6 +86,7 @@ public class LocatorFragment extends Fragment {
                              @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_locator, container, false);
 
+        mLinearProgressIndicator = (LinearProgressIndicator) v.findViewById(R.id.linear_progress_indicator);
         mImageView = (AppCompatImageView) v.findViewById(R.id.image);
 
         return v;
@@ -104,6 +114,7 @@ public class LocatorFragment extends Fragment {
 
         MenuItem searchItem = menu.findItem(R.id.action_locate);
         searchItem.setEnabled(mClient.isConnected());
+
     }
 
     @Override
@@ -161,6 +172,15 @@ public class LocatorFragment extends Fragment {
         private Bitmap mBitmap;
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            if (mLinearProgressIndicator != null) {
+                mLinearProgressIndicator.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
         protected Void doInBackground(Location... locations) {
             FlickrFetcher fetcher = new FlickrFetcher();
             List<GalleryItem> items = fetcher.searchPhotos(locations[0]);
@@ -184,6 +204,8 @@ public class LocatorFragment extends Fragment {
         @Override
         protected void onPostExecute(Void unused) {
             mImageView.setImageBitmap(mBitmap);
+
+            mLinearProgressIndicator.setVisibility(View.GONE);
         }
     }
 }
