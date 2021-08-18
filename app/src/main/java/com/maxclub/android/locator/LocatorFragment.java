@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 public class LocatorFragment extends Fragment {
 
@@ -44,6 +46,7 @@ public class LocatorFragment extends Fragment {
 
     private LinearProgressIndicator mLinearProgressIndicator;
     private AppCompatImageView mImageView;
+    private TextView mCoordinatesTextView;
     private GoogleApiClient mClient;
 
     public static LocatorFragment newInstance() {
@@ -88,6 +91,7 @@ public class LocatorFragment extends Fragment {
 
         mLinearProgressIndicator = (LinearProgressIndicator) v.findViewById(R.id.linear_progress_indicator);
         mImageView = (AppCompatImageView) v.findViewById(R.id.image);
+        mCoordinatesTextView = (TextView) v.findViewById(R.id.coordinates);
 
         return v;
     }
@@ -178,6 +182,9 @@ public class LocatorFragment extends Fragment {
             if (mLinearProgressIndicator != null) {
                 mLinearProgressIndicator.setVisibility(View.VISIBLE);
             }
+
+            mImageView.setImageDrawable(getResources().getDrawable(R.drawable.placeholder));
+            mCoordinatesTextView.setText("");
         }
 
         @Override
@@ -203,8 +210,11 @@ public class LocatorFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void unused) {
-            mImageView.setImageBitmap(mBitmap);
-
+            if (mGalleryItem != null) {
+                mImageView.setImageBitmap(mBitmap);
+                mCoordinatesTextView.setText(
+                        String.format(Locale.getDefault(), "%s, %s", mGalleryItem.getLat(), mGalleryItem.getLon()));
+            }
             mLinearProgressIndicator.setVisibility(View.GONE);
         }
     }

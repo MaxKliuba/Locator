@@ -20,4 +20,14 @@
         android:layout_centerInParent="true"
         android:src="@drawable/placeholder" />
 
+    <TextView
+        android:id="@+id/coordinates"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="16dp"
+        android:gravity="center"
+        tools:text="[Coordinates]" />
+
 </RelativeLayout>
